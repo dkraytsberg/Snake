@@ -1,0 +1,8 @@
+{
+  "FolderOrderSettings":[],
+  "ResourceOrderSettings":[
+    {"name":"obj_game","order":3,"path":"objects/obj_game/obj_game.yy",},
+    {"name":"bass","order":5,"path":"sounds/bass/bass.yy",},
+    {"name":"vibe","order":6,"path":"sounds/vibe/vibe.yy",},
+  ],
+}
