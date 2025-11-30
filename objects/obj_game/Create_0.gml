@@ -1,9 +1,9 @@
 border = 32;
 border_top = 64;
 snake_size = 8;
-food_size = 8;
-hor_squares = (room_width - border - border) / 8
-ver_squares = (room_height - border - border_top) / 8
+food_size = snake_size;
+hor_squares = (room_width - border - border) / snake_size
+ver_squares = (room_height - border - border_top) / snake_size
 
 dead = false
 jormungar = false
