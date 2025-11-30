@@ -28,7 +28,7 @@ snake_food_mode = FOOD_NORMAL
 color = c_yellow
 dir = [1, 0]
 
-snakes = [[0,0, color], [0, 1, color], [1,1, color], [2,1, color], [3,1, color], [4,1,color]]
+snakes = [[0,0, FOOD_NORMAL], [0, 1, FOOD_NORMAL], [1,1, FOOD_NORMAL], [2,1, FOOD_NORMAL], [3,1, FOOD_NORMAL], [4,1,FOOD_NORMAL]]
 food = [[4, 4, FOOD_NORMAL]]
 score = 0
 _score_before_jormungar = 0
@@ -42,6 +42,13 @@ function food_to_color(f) {
         case FOOD_FRENZY: return c_maroon
         case FOOD_FEAST: return c_maroon
     }
+}
+
+function food_to_snake_color(f) {
+    if f == FOOD_NORMAL {
+        return c_yellow
+    }
+    return food_to_color(f)
 }
 
 function state_is_powerup() {
@@ -64,10 +71,6 @@ function print_text(text, col) {
     draw_set_halign(fa_left);
 }
 
-function get_food_xy(f) {
-    return [f[0] * food_size + border, f[1] * food_size + border_top]
-}
-
 function make_food(type) {
     var food_type = FOOD_NORMAL
     
@@ -87,23 +90,20 @@ function make_food(type) {
 function process_food_effects() {
     if snake_food_mode == FOOD_SUPER {
         score *= 2
-        color = c_fuchsia
     } else if snake_food_mode == FOOD_GHOST {
-        color = c_silver
         powerup_counter = BASE_POWERUP_COUNTER
     } else if snake_food_mode == FOOD_LONG {
-        color = c_aqua
         powerup_counter = BASE_POWERUP_COUNTER
     } else if snake_food_mode == FOOD_FRENZY {
-        color = c_maroon
         repeat(5) {
             make_food(FOOD_FEAST)
         }
         frenzy_counter = BASE_FRENZY_COUNTER
     } else if snake_food_mode == FOOD_FEAST {
-        color = c_maroon
         frenzy_counter += game_get_speed(gamespeed_fps)
     }
+    
+    color = food_to_snake_color(snake_food_mode)
 }
 
 function check_food_collisions() {
@@ -139,7 +139,7 @@ function move_snake() {
     var new_head = [
         (head[0] + dir[0] + hor_squares) % hor_squares, 
         (head[1] + dir[1] + ver_squares) % ver_squares,
-        color
+        snake_food_mode
     ]
     
     array_push(snakes, new_head)
@@ -169,7 +169,7 @@ function check_collision() {
     }
     for(var i = 0; i < array_length(snakes) - 1; i++) {
         if head[0] == snakes[i][0] and head[1] == snakes[i][1] { 
-            if snake_food_mode != FOOD_GHOST and snakes[i][2] != c_silver {
+            if snake_food_mode != FOOD_GHOST and snakes[i][2] != FOOD_GHOST {
                dead = true;
                 frenzy_counter = 0
                return

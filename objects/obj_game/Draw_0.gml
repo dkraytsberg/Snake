@@ -3,12 +3,13 @@ draw_rectangle(border, border_top, room_width - border, room_height - border, tr
 draw_set_font(snake_font)
 
 for(var i = 0; i < array_length(snakes); i++) {
-    var snake_x = snakes[i][0] * snake_size + border;
-    var snake_y = snakes[i][1] * snake_size + border_top;
-    draw_set_colour(snakes[i][2])
-    draw_rectangle(snake_x, snake_y, snake_x + snake_size, snake_y + snake_size, snakes[i][2] == c_silver)
+    var s = snakes[i]
+    var snake_x = s[0] * snake_size + border;
+    var snake_y = s[1] * snake_size + border_top;
+    draw_set_colour(food_to_snake_color(s[2]))
+    var is_outline = s[2] == FOOD_GHOST
+    draw_rectangle(snake_x, snake_y, snake_x + snake_size, snake_y + snake_size, is_outline)
 }
-
 
 for (var i = 0; i < array_length(food); i++) { 
     var f = food[i]
@@ -18,13 +19,12 @@ for (var i = 0; i < array_length(food); i++) {
     draw_rectangle(foodxy[0], foodxy[1], foodxy[0] + food_size, foodxy[1] + food_size, is_outline)
 }
 
-var score_string = string(score)
+draw_set_colour(color)
+draw_text(border, 16, "SCORE: " + string(score));
 
 if jormungar {
     print_text("Jormungandr " + string(_score_before_jormungar))
 }
-draw_set_colour(color)
-draw_text(border, 16, "SCORE: " + string(score_string));
 
 if dead {
     print_text("PRESS [ENTER] TO RESTART")
