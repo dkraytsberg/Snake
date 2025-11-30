@@ -23,14 +23,21 @@ snake_food_mode = FOOD_NORMAL
 color = c_yellow
 dir = [1, 0]
 snakes = [[0,0, color], [0, 1, color], [1,1, color], [2,1, color], [3,1, color], [4,1,color]]
-food = [4, 4, FOOD_NORMAL]
+food = [[4, 4, FOOD_NORMAL]]
 
 score = 0
 
 // audio_play_sound(vibe, 1, true)
 
-function get_food_xy() {
-    return [food[0] * food_size + border, food[1] * food_size + border_top]
+function print_text(text) {
+    draw_set_colour(c_white)
+    draw_set_halign(fa_center);
+    draw_text(room_width / 2, 16, text)
+    draw_set_halign(fa_left);
+}
+
+function get_food_xy(f) {
+    return [f[0] * food_size + border, f[1] * food_size + border_top]
 }
 
 function make_food() { 
@@ -40,8 +47,42 @@ function make_food() {
         food_type = choose(FOOD_SUPER, FOOD_LONG, FOOD_GHOST)
     }
     
-    food = [irandom_range(0, hor_squares - 1), irandom_range(0, ver_squares - 1), food_type]
+    var f = [irandom_range(0, hor_squares - 1), irandom_range(0, ver_squares - 1), food_type]
+    
+    array_push(food, f)
+}
 
+function check_food_collisions() {
+    for(var i = 0; i < array_length(food); i++) {
+       var f = food[i]
+       if head[0] == f[0] and head[1] == f[1] {
+           color = c_yellow 
+           score += 1
+           snake_food_mode = f[2]
+           
+           if snake_food_mode == FOOD_SUPER {
+               score *= 2
+               color = c_fuchsia
+           } else if snake_food_mode == FOOD_GHOST {
+               color = c_silver
+               powerup_counter = BASE_POWERUP_COUNTER
+           } else if snake_food_mode == FOOD_LONG {
+               color = c_aqua
+               powerup_counter = BASE_POWERUP_COUNTER
+           }
+           
+           array_delete(food, i, 1)
+           
+           if array_length(food) == 0 { 
+            repeat(1) { 
+                make_food()
+            }
+           }
+           return true;
+       }
+    }
+    
+    return false;
 }
 
 function move_snake() {
@@ -66,29 +107,10 @@ function move_snake() {
         score += 1;
     }
     
-    if head[0] == food[0] and head[1] == food[1] {
-        color = c_yellow
-        score += 1
-        snake_food_mode = food[2]
-        
-        if snake_food_mode == FOOD_SUPER {
-            score *= 2
-            color = c_fuchsia
-        } else if snake_food_mode == FOOD_GHOST {
-            color = c_silver
-            powerup_counter = BASE_POWERUP_COUNTER
-        } else if snake_food_mode == FOOD_LONG {
-            color = c_aqua
-            powerup_counter = BASE_POWERUP_COUNTER
-        }
-        
-        make_food()
-        
-
-    } else {
-        if snake_food_mode != FOOD_LONG { 
-            array_shift(snakes)
-        }
+    var ate_food = check_food_collisions()
+    
+    if !ate_food and snake_food_mode != FOOD_LONG { 
+        array_shift(snakes)
     }
 }
 
