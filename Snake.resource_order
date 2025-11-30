@@ -1,6 +1,7 @@
 {
   "FolderOrderSettings":[],
   "ResourceOrderSettings":[
+    {"name":"snake_font","order":4,"path":"fonts/snake_font/snake_font.yy",},
     {"name":"obj_game","order":3,"path":"objects/obj_game/obj_game.yy",},
   ],
 }

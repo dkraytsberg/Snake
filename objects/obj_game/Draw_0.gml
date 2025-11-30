@@ -1,5 +1,6 @@
 draw_set_colour(color)
 draw_rectangle(border, border_top, room_width - border, room_height - border, true)
+draw_set_font(snake_font)
 
 for(var i = 0; i < array_length(snakes); i++) {
     var snake_x = snakes[i][0] * snake_size + border;
