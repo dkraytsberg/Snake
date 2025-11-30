@@ -21,8 +21,6 @@
   "resources":[
     {"id":{"name":"obj_game","path":"objects/obj_game/obj_game.yy",},},
     {"id":{"name":"room_snakepit","path":"rooms/room_snakepit/room_snakepit.yy",},},
-    {"id":{"name":"bass","path":"sounds/bass/bass.yy",},},
-    {"id":{"name":"vibe","path":"sounds/vibe/vibe.yy",},},
   ],
   "resourceType":"GMProject",
   "resourceVersion":"2.0",
