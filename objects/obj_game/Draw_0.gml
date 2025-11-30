@@ -12,15 +12,7 @@ for(var i = 0; i < array_length(snakes); i++) {
 for (var i = 0; i < array_length(food); i++) { 
     var f = food[i]
     var foodxy = get_food_xy(f)
-    draw_set_colour(c_white)
-    if f[2] == FOOD_SUPER {
-         draw_set_colour(c_fuchsia)
-    } else if f[2] == FOOD_LONG {
-         draw_set_colour(c_aqua)
-    } else if f[2] == FOOD_GHOST {
-         draw_set_colour(c_silver)
-    }
-  
+    draw_set_colour(food_to_color(f[2]))
     draw_rectangle(foodxy[0], foodxy[1], foodxy[0] + food_size, foodxy[1] + food_size, f[2] == FOOD_GHOST)
 }
 

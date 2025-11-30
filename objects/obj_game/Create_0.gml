@@ -18,6 +18,15 @@ FOOD_SUPER = "super"
 FOOD_LONG = "long"
 FOOD_GHOST = "ghost"
 
+function food_to_color(f) {
+    switch(f){
+        case FOOD_NORMAL: return c_white
+        case FOOD_SUPER: return c_fuchsia
+        case FOOD_LONG: return c_aqua 
+        case FOOD_GHOST: return c_silver
+    }
+}
+
 snake_food_mode = FOOD_NORMAL
 
 color = c_yellow
