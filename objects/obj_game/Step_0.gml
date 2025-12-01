@@ -1,16 +1,16 @@
 
 if keyboard_check_pressed(vk_right) and dir[0] != -1 {
-    dir = [1,0]
+    _input_buffer = [1,0]
 } 
 else if keyboard_check_pressed(vk_left) and dir[0] != 1  {
-    dir = [-1,0]
+    _input_buffer = [-1,0]
 } 
 else if keyboard_check_pressed(vk_up) and dir[1] != 1 {
-    dir = [0,-1]
+    _input_buffer = [0,-1]
 } 
 else if keyboard_check_pressed(vk_down) and dir[1] != -1 {
-    dir = [0,1]
-} 
+    _input_buffer = [0,1]
+}
 
 if (dead or jormungar) and keyboard_check_pressed(vk_enter) {
     game_restart()

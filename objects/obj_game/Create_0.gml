@@ -5,6 +5,8 @@ food_size = snake_size;
 hor_squares = (room_width - border - border) / snake_size
 ver_squares = (room_height - border - border_top) / snake_size
 
+_input_buffer = [1, 0]
+
 dead = false
 jormungar = false
 paused = false
@@ -24,9 +26,14 @@ FOOD_GHOST = "ghost"
 FOOD_FRENZY = "frenzy"
 FOOD_FEAST = "feast"
 
+s = {
+    FOOD_SUPER: true
+}
+
 snake_food_mode = FOOD_NORMAL
 color = c_yellow
 dir = [1, 0]
+
 
 snakes = [[0,0, FOOD_NORMAL], [0, 1, FOOD_NORMAL], [1,1, FOOD_NORMAL], [2,1, FOOD_NORMAL], [3,1, FOOD_NORMAL], [4,1,FOOD_NORMAL]]
 food = [[4, 4, FOOD_NORMAL]]
@@ -77,8 +84,10 @@ function make_food(type) {
     if type != undefined {
         food_type = type
     } else {
-        if random(10) >= 8 {
+        if random(10) >= 7 and score > 10{
             food_type = choose(FOOD_SUPER, FOOD_LONG, FOOD_GHOST, FOOD_FRENZY)
+            
+            randomise()
         }
     }
     
@@ -121,7 +130,7 @@ function check_food_collisions() {
                 if frenzy_counter > 0 {
                    // feast successful
                    snake_food_mode = FOOD_NORMAL
-                   score *= 10
+                   score *= 5
                    frenzy_counter = 0
                } 
                make_food()
@@ -135,6 +144,8 @@ function check_food_collisions() {
 
 function move_snake() {
     head = array_last(snakes)
+    
+    dir = _input_buffer
     
     var new_head = [
         (head[0] + dir[0] + hor_squares) % hor_squares, 
