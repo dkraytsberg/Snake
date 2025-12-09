@@ -2,7 +2,7 @@
   "$GMProject":"v1",
   "%Name":"Snake",
   "AudioGroups":[
-    {"$GMAudioGroup":"","%Name":"audiogroup_default","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
+    {"$GMAudioGroup":"v1","%Name":"audiogroup_default","exportDir":"","name":"audiogroup_default","resourceType":"GMAudioGroup","resourceVersion":"2.0","targets":-1,},
   ],
   "configs":{
     "children":[],
@@ -19,6 +19,7 @@
   },
   "name":"Snake",
   "resources":[
+    {"id":{"name":"snake_font_large","path":"fonts/snake_font_large/snake_font_large.yy",},},
     {"id":{"name":"snake_font","path":"fonts/snake_font/snake_font.yy",},},
     {"id":{"name":"obj_game","path":"objects/obj_game/obj_game.yy",},},
     {"id":{"name":"room_snakepit","path":"rooms/room_snakepit/room_snakepit.yy",},},

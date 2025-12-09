@@ -1,3 +1,9 @@
+ROOM_MENU = "menu"
+ROOM_GAME = "game"
+ROOM_MODE_SELECT = "settings"
+ROOM_INFO = "info"
+_room = ROOM_MENU
+
 border = 32;
 border_top = 64;
 snake_size = 8;
@@ -5,19 +11,18 @@ food_size = snake_size;
 hor_squares = (room_width - border - border) / snake_size
 ver_squares = (room_height - border - border_top) / snake_size
 
-_input_buffer = [1, 0]
 
-dead = false
-jormungar = false
-paused = false
+BASE_SPEED_COUNTER = 4
+TURBO_SPEED_COUNTER = 2
+BASE_POWERUP_COUNTER = 3 * game_get_speed(gamespeed_fps)
+BASE_FRENZY_COUNTER = 6 * game_get_speed(gamespeed_fps)
 
-BASE_SPEED_COUNTER = 2
-BASE_POWERUP_COUNTER = game_get_speed(gamespeed_fps) * 2
-BASE_FRENZY_COUNTER = game_get_speed(gamespeed_fps) * 9
-
-speed_counter = BASE_SPEED_COUNTER
+speed_counter = 0
 powerup_counter = 0
 frenzy_counter = 0
+
+mode_turbo = false
+mode_pure = false
 
 FOOD_NORMAL = "normal"
 FOOD_SUPER = "super"
@@ -25,29 +30,54 @@ FOOD_LONG = "long"
 FOOD_GHOST = "ghost"
 FOOD_FRENZY = "frenzy"
 FOOD_FEAST = "feast"
+FOOD_FEAST_SUCCESS = "feast_success"
+FOOD_FEAST_FAILED = "feast_failed"
+FOOD_DEAD = "dead"
 
-s = {
-    FOOD_SUPER: true
+_food_options = [FOOD_SUPER, FOOD_LONG, FOOD_GHOST, FOOD_FRENZY]
+_STARTING_SNAKES = [[0,0, FOOD_NORMAL], [0, 1, FOOD_NORMAL], [1,1, FOOD_NORMAL], [2,1, FOOD_NORMAL], [3,1, FOOD_NORMAL], [4,1,FOOD_NORMAL]]
+
+function game_init() {
+    snakes = []
+    array_copy(snakes, 0, _STARTING_SNAKES, 0, 6)
+    food = []
+    score = 0
+    foods_eaten = 0
+    dir = [1, 0]
+    score_before_jormungar = 0
+    dead = false
+    jormungar = false
+    paused = false
+    speed_counter = 0
+    _input_buffer = [1, 0]
+    
+    reset_snake_mode()
+    make_food(FOOD_NORMAL)
 }
 
-snake_food_mode = FOOD_NORMAL
-color = c_yellow
-dir = [1, 0]
-
-
-snakes = [[0,0, FOOD_NORMAL], [0, 1, FOOD_NORMAL], [1,1, FOOD_NORMAL], [2,1, FOOD_NORMAL], [3,1, FOOD_NORMAL], [4,1,FOOD_NORMAL]]
-food = [[4, 4, FOOD_NORMAL]]
-score = 0
-_score_before_jormungar = 0
 
 function food_to_color(f) {
     switch(f){
         case FOOD_NORMAL: return c_white
         case FOOD_SUPER: return c_fuchsia
-        case FOOD_LONG: return c_aqua 
+        case FOOD_LONG: return c_aqua
         case FOOD_GHOST: return c_silver
         case FOOD_FRENZY: return c_maroon
         case FOOD_FEAST: return c_maroon
+        case FOOD_FEAST_SUCCESS: return c_yellow
+        case FOOD_FEAST_FAILED: return c_yellow
+        case FOOD_DEAD: return c_white 
+    }
+}
+
+function food_to_info(f) {
+    switch(f){
+        case FOOD_NORMAL: return "Regular food, delicious!"
+        case FOOD_SUPER: return "Super Food, double your score!"
+        case FOOD_LONG: return "Long Food, become longer!" 
+        case FOOD_GHOST: return "Ghost Food??"
+        case FOOD_FRENZY: return "Frenzy Food!!!"
+        case FOOD_FEAST: return "Feast Food! Eat quickly for a bonus!"
     }
 }
 
@@ -68,15 +98,19 @@ function state_is_frenzy() {
 
 function reset_snake_mode() {
     snake_food_mode = FOOD_NORMAL;
-    color = c_yellow
+    color = c_yellow;
+    frenzy_counter = 0;
+    powerup_counter = 0;
 }
 
-function print_text(text, col) {
-    draw_set_colour(col ?? c_white)
+function print_text(text, col = c_white) {
+    // draw_set_colour(col ?? c_white)
+    draw_set_colour(c_white)
     draw_set_halign(fa_center);
     draw_text(room_width / 2, 16, text)
     draw_set_halign(fa_left);
 }
+
 
 function make_food(type) {
     var food_type = FOOD_NORMAL
@@ -84,19 +118,22 @@ function make_food(type) {
     if type != undefined {
         food_type = type
     } else {
-        if random(10) >= 7 and score > 10{
-            food_type = choose(FOOD_SUPER, FOOD_LONG, FOOD_GHOST, FOOD_FRENZY)
-            
-            randomise()
+        if random(10) >= 7 and score > 10 and not mode_pure {
+            food_type = _food_options[irandom(array_length(_food_options) - 1)]
         }
     }
     
-    var f = [irandom_range(1, hor_squares - 2), irandom_range(1, ver_squares - 2), food_type]
-    
-    array_push(food, f)
+    array_push(food, [
+        irandom_range(1, hor_squares - 2), 
+        irandom_range(1, ver_squares - 2), 
+        food_type
+    ])
 }
 
 function process_food_effects() {
+    if mode_turbo {
+        score += 4
+    }
     if snake_food_mode == FOOD_SUPER {
         score *= 2
     } else if snake_food_mode == FOOD_GHOST {
@@ -104,7 +141,7 @@ function process_food_effects() {
     } else if snake_food_mode == FOOD_LONG {
         powerup_counter = BASE_POWERUP_COUNTER
     } else if snake_food_mode == FOOD_FRENZY {
-        repeat(5) {
+        repeat(irandom_range(4, 6)) {
             make_food(FOOD_FEAST)
         }
         frenzy_counter = BASE_FRENZY_COUNTER
@@ -115,12 +152,13 @@ function process_food_effects() {
     color = food_to_snake_color(snake_food_mode)
 }
 
-function check_food_collisions() {
+function check_food_eaten() {
     for(var i = 0; i < array_length(food); i++) {
         var food_collision = head[0] == food[i][0] and head[1] == food[i][1];
         if food_collision {
             color = c_yellow;
             score += 1
+            foods_eaten += 1
             snake_food_mode = food[i][2]
         
             process_food_effects()
@@ -129,9 +167,10 @@ function check_food_collisions() {
             if array_length(food) == 0 {
                 if frenzy_counter > 0 {
                    // feast successful
-                   snake_food_mode = FOOD_NORMAL
-                   score *= 5
-                   frenzy_counter = 0
+                   snake_food_mode = FOOD_FEAST_SUCCESS //FOOD_NORMAL
+                   score *= 3
+                   frenzy_counter = 0 
+                   color = food_to_color(FOOD_FEAST_SUCCESS)
                } 
                make_food()
            }
@@ -159,20 +198,25 @@ function move_snake() {
         score += 1;
     }
     
-    var ate_food = check_food_collisions()
+    var ate_food = check_food_eaten()
     
     if !ate_food and snake_food_mode != FOOD_LONG { 
         array_shift(snakes)
     }
 }
 
+function set_all_snakes_to(food_type) {
+  array_foreach(snakes, function(s, i) { s[2] = food_type; });
+}
+
 function check_collision() {
-    head = array_last(snakes)
-    tail = array_first(snakes)
+    var head = array_last(snakes)
+    var tail = array_first(snakes)
     
     if head[0] == tail[0] and head[1] == tail[1] {
         if not jormungar { 
-            _score_before_jormungar = score
+            score_before_jormungar = score * 100
+            array_foreach(snakes, function(s, i) { s[2] = FOOD_DEAD });
         }
         jormungar = true
         score *= 100;
@@ -181,12 +225,48 @@ function check_collision() {
     for(var i = 0; i < array_length(snakes) - 1; i++) {
         if head[0] == snakes[i][0] and head[1] == snakes[i][1] { 
             if snake_food_mode != FOOD_GHOST and snakes[i][2] != FOOD_GHOST {
-               dead = true;
-                frenzy_counter = 0
-               return
+                reset_snake_mode();
+                array_foreach(snakes, function(s, i) { s[2] = FOOD_DEAD });
+                food = []; color = c_white; dead = true;
+                return;
             } else {
                 score += 5;
             }
         }
     }
 }
+
+function _movement_keyboard_checks() {
+    if keyboard_check_pressed(vk_right) and dir[0] != -1 {
+        _input_buffer = [1,0]
+    } 
+    else if keyboard_check_pressed(vk_left) and dir[0] != 1  {
+        _input_buffer = [-1,0]
+    } 
+    else if keyboard_check_pressed(vk_up) and dir[1] != 1 {
+        _input_buffer = [0,-1]
+    } 
+    else if keyboard_check_pressed(vk_down) and dir[1] != -1 {
+        _input_buffer = [0,1]
+    }
+}
+
+function _check_collision_move_snake() {
+    if speed_counter <= 0 { 
+        check_collision()
+        if not dead and not jormungar { move_snake() }
+        if mode_turbo { 
+            speed_counter = TURBO_SPEED_COUNTER;
+        } else {
+            speed_counter = BASE_SPEED_COUNTER;
+        }
+    } else {
+        speed_counter -= 1
+    }
+}
+
+function _esc_enter_space() {
+    return keyboard_check_pressed(vk_escape) or keyboard_check_pressed(vk_enter) or keyboard_check_pressed(vk_space)
+}
+
+game_init()
