@@ -1,13 +1,13 @@
-ROOM_MENU = "menu"
-ROOM_GAME = "game"
-ROOM_MODE_SELECT = "settings"
-ROOM_INFO = "info"
+#macro ROOM_MENU "menu"
+#macro ROOM_GAME "game"
+#macro ROOM_MODE_SELECT "settings"
+#macro ROOM_INFO "info"
 _room = ROOM_MENU
 
-border = 32;
-border_top = 64;
-snake_size = 8;
-food_size = snake_size;
+#macro border 32
+#macro border_top 64
+#macro snake_size 8
+#macro food_size snake_size
 hor_squares = (room_width - border - border) / snake_size
 ver_squares = (room_height - border - border_top) / snake_size
 
@@ -24,15 +24,15 @@ frenzy_counter = 0
 mode_turbo = false
 mode_pure = false
 
-FOOD_NORMAL = "normal"
-FOOD_SUPER = "super"
-FOOD_LONG = "long"
-FOOD_GHOST = "ghost"
-FOOD_FRENZY = "frenzy"
-FOOD_FEAST = "feast"
-FOOD_FEAST_SUCCESS = "feast_success"
-FOOD_FEAST_FAILED = "feast_failed"
-FOOD_DEAD = "dead"
+#macro FOOD_NORMAL "normal"
+#macro FOOD_SUPER "super"
+#macro FOOD_LONG "long"
+#macro FOOD_GHOST "ghost"
+#macro FOOD_FRENZY "frenzy"
+#macro FOOD_FEAST "feast"
+#macro FOOD_FEAST_SUCCESS "feast_success"
+#macro FOOD_FEAST_FAILED "feast_failed"
+#macro FOOD_DEAD "dead"
 
 _food_options = [FOOD_SUPER, FOOD_LONG, FOOD_GHOST, FOOD_FRENZY]
 _STARTING_SNAKES = [[0,0, FOOD_NORMAL], [0, 1, FOOD_NORMAL], [1,1, FOOD_NORMAL], [2,1, FOOD_NORMAL], [3,1, FOOD_NORMAL], [4,1,FOOD_NORMAL]]
@@ -54,7 +54,6 @@ function game_init() {
     reset_snake_mode()
     make_food(FOOD_NORMAL)
 }
-
 
 function food_to_color(f) {
     switch(f){

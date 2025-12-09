@@ -47,8 +47,6 @@ if _room == ROOM_GAME {
     } else if snake_food_mode == FOOD_FEAST_SUCCESS {
         print_text("SUCCESS!")
     }
-    
-    
 }
 
 if _room == ROOM_MENU {
