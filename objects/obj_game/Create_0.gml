@@ -2,14 +2,16 @@
 #macro ROOM_GAME "game"
 #macro ROOM_MODE_SELECT "settings"
 #macro ROOM_INFO "info"
+#macro ROOM_SCRATCH "scratch"
 _room = ROOM_MENU
 
 #macro border 32
 #macro border_top 64
 #macro snake_size 8
 #macro food_size snake_size
-hor_squares = (room_width - border - border) / snake_size
-ver_squares = (room_height - border - border_top) / snake_size
+#macro font_size_line_height 18
+#macro hor_squares ((room_width - border - border) / snake_size)
+#macro ver_squares ((room_height - border - border_top) / snake_size)
 
 
 BASE_SPEED_COUNTER = 4
@@ -23,6 +25,8 @@ frenzy_counter = 0
 
 mode_turbo = false
 mode_pure = false
+mode_rush = false
+mode_multi = false
 
 #macro FOOD_NORMAL "normal"
 #macro FOOD_SUPER "super"
@@ -50,9 +54,15 @@ function game_init() {
     paused = false
     speed_counter = 0
     _input_buffer = [1, 0]
-    
     reset_snake_mode()
     make_food(FOOD_NORMAL)
+}
+
+function reset_snake_mode() {
+    snake_food_mode = FOOD_NORMAL;
+    color = c_yellow;
+    frenzy_counter = 0;
+    powerup_counter = 0;
 }
 
 function food_to_color(f) {
@@ -95,13 +105,7 @@ function state_is_frenzy() {
     return snake_food_mode == FOOD_FRENZY or snake_food_mode == FOOD_FEAST;
 }
 
-function reset_snake_mode() {
-    snake_food_mode = FOOD_NORMAL;
-    color = c_yellow;
-    frenzy_counter = 0;
-    powerup_counter = 0;
-}
-
+// todo: delete
 function print_text(text, col = c_white) {
     // draw_set_colour(col ?? c_white)
     draw_set_colour(c_white)
@@ -117,7 +121,10 @@ function make_food(type) {
     if type != undefined {
         food_type = type
     } else {
-        if random(10) >= 7 and score > 10 and not mode_pure {
+        if mode_rush {
+            food_type = _food_options[irandom(array_length(_food_options) - 1)]
+        }
+        else if not mode_pure and random(10) >= 7 and score > 10 {
             food_type = _food_options[irandom(array_length(_food_options) - 1)]
         }
     }
@@ -159,10 +166,11 @@ function check_food_eaten() {
             score += 1
             foods_eaten += 1
             snake_food_mode = food[i][2]
-        
+            
             process_food_effects()
             array_delete(food, i, 1)
            
+            // TODO: check that there are no more feast foods in the array, to account for multi-mode
             if array_length(food) == 0 {
                 if frenzy_counter > 0 {
                    // feast successful
@@ -172,6 +180,12 @@ function check_food_eaten() {
                    color = food_to_color(FOOD_FEAST_SUCCESS)
                } 
                make_food()
+                
+                if mode_multi {
+                    repeat(irandom_range(1, 3)) {
+                        make_food()
+                    }
+                }
            }
            return true;
        }

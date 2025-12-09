@@ -29,7 +29,7 @@ if _room == ROOM_GAME {
        
        if state_is_frenzy() {
            if frenzy_counter <= 1 {
-               food = []
+               food = [] // TODO: this kills the other food in multi_mode
                make_food()
                reset_snake_mode()
           } else {
@@ -46,30 +46,21 @@ if _room == ROOM_MENU {
     }
     else if keyboard_check_pressed(ord("M")) {
         _room = ROOM_MODE_SELECT
+        return;
     }
     else if keyboard_check_pressed(ord("I")) {
         _room = ROOM_INFO
+        return;
     }
 }
 
 if _room == ROOM_MODE_SELECT {
-    if keyboard_check_pressed(vk_escape) {
-        _room = ROOM_MENU
-    }
-    
-    if keyboard_check_pressed(vk_enter) or keyboard_check_pressed(vk_space) {
-        _room = ROOM_GAME
-    }
-    
-    if keyboard_check_pressed(ord("T")) {
-        // turbo
-        mode_turbo = !mode_turbo
-    }
-    
-    if keyboard_check_pressed(ord("P")) {
-        // pure
-        mode_pure = !mode_pure
-    }
+    if keyboard_check_pressed(vk_escape) { _room = ROOM_MENU; return; }
+    if keyboard_check_pressed(vk_enter) or keyboard_check_pressed(vk_space) { _room = ROOM_GAME; return; }
+    if keyboard_check_pressed(ord("T")) { mode_turbo = !mode_turbo; }
+    if keyboard_check_pressed(ord("P")) { mode_pure = !mode_pure; mode_rush = false; mode_multi = false; }
+    if keyboard_check_pressed(ord("R")) { mode_rush = !mode_rush; mode_pure = false; }
+    if keyboard_check_pressed(ord("M")) { mode_multi = !mode_multi; }
 }
 
 if _room == ROOM_INFO {
