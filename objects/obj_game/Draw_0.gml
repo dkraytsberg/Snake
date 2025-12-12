@@ -2,7 +2,7 @@ function _draw_border() {
     draw_rectangle(border, border_top, room_width - border, room_height - border, true)
 }
 
-function __draw_text(text, hindex, vindex) {
+function __draw_top_text(text, hindex, vindex, pad = 0) {
     var halign; var tx;
     if hindex <= 0 { 
         halign = fa_left 
@@ -17,20 +17,32 @@ function __draw_text(text, hindex, vindex) {
     
     var prev_halign = draw_get_halign()
     draw_set_halign(halign)
-    draw_text(tx, 8 + vindex * font_size_line_height, text)
+    draw_text(tx, pad + 8 + vindex * font_size_line_height, text)
     draw_set_halign(prev_halign)
 }
 
+function __draw_body_text(text, hindex, vindex) {
+    __draw_top_text(text, hindex, vindex, border_top)
+}
+
+function _draw_center_text(text, vindex) {
+    __draw_top_text(text, 1, vindex, border_top)
+}
+
 function _draw_score(scr) {
-    __draw_text(scr, 0, 0)
+    __draw_top_text(scr, 0, 0)
 }
 
 function _draw_status(status) {
-    __draw_text(status, 1, 1)
+    __draw_top_text(status, 1, 1)
 }
 
 function _draw_mode(mode) {
-    __draw_text(mode, 2, 0)
+    __draw_top_text(mode, 2, 0)
+}
+
+function _draw_highscore(scr) {
+    __draw_top_text(scr, 2, 2)
 }
 
 draw_set_font(snake_font)
@@ -38,6 +50,8 @@ draw_set_halign(fa_left);
 draw_set_valign(fa_top); 
 draw_set_colour(c_white)
 
+
+//_draw_highscore("HIGHSCORE: " + string(highscore_value(1)))
 
 if _room == ROOM_GAME {
     draw_set_colour(color)
@@ -66,6 +80,10 @@ if _room == ROOM_GAME {
    
     draw_set_colour(color)
     _draw_score("SCORE: " + string(score))
+    
+    if score > highscore_value(1) {
+        _draw_highscore("NEW HIGH SCORE!")
+    }
    
     if jormungar {
         _draw_status("Jormungandr " + string(score_before_jormungar))
@@ -111,6 +129,7 @@ if _room == ROOM_MENU {
     draw_text(room_width / 2, room_height / 2 + 32, "PRESS [enter] TO START")
     draw_text(room_width / 2, room_height / 2 + 50, "[M] MODE SELECT")
     draw_text(room_width / 2, room_height / 2 + 68, "[I] INFO")
+    draw_text(room_width / 2, room_height / 2 + 86, "[H] HIGHSCORES")
 }
 
 if _room == ROOM_MODE_SELECT {
@@ -159,5 +178,13 @@ if _room == ROOM_SCRATCH {
     _draw_mode("TURBO!")
 }
 
+if _room == ROOM_HIGHSCORE {
+    _draw_border()
+    draw_set_halign(fa_center);
+    draw_text(room_width / 2, room_height - (border * 2), "PRESS [ESC] TO GO BACK")
+    _draw_center_text(highscore_value(1), 5)
+    _draw_center_text(highscore_value(2), 6)
+    _draw_center_text(highscore_value(3), 7)
+}
 
 

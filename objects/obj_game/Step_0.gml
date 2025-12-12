@@ -46,11 +46,21 @@ if _room == ROOM_MENU {
     }
     else if keyboard_check_pressed(ord("M")) {
         _room = ROOM_MODE_SELECT
-        return;
+        return
     }
     else if keyboard_check_pressed(ord("I")) {
         _room = ROOM_INFO
-        return;
+        return
+    }
+    else if keyboard_check_pressed(ord("Q")) {
+        game_end()
+    }
+    else if keyboard_check_pressed(ord("C")) {
+        highscore_clear()
+    }
+    else if keyboard_check_pressed(ord("H")) {
+        _room = ROOM_HIGHSCORE
+        return
     }
 }
 
@@ -64,6 +74,12 @@ if _room == ROOM_MODE_SELECT {
 }
 
 if _room == ROOM_INFO {
+    if keyboard_check_pressed(vk_escape) {
+        _room = ROOM_MENU
+    }
+}
+
+if _room == ROOM_HIGHSCORE {
     if keyboard_check_pressed(vk_escape) {
         _room = ROOM_MENU
     }
