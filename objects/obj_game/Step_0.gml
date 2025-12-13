@@ -2,14 +2,15 @@
 if _room == ROOM_GAME {
     if dead or jormungar {
         if _esc_enter_space() or keyboard_check_pressed(ord("R")) { 
+            highscore_add("snake", score)
             game_init();
             return;
         } 
-        if keyboard_check_pressed(ord("Q")) { game_restart() }
+        if keyboard_check_pressed(ord("Q")) { game_init(); _room = ROOM_MENU; highscore_add("snake", score); return }
         
     }
     
-    if paused and keyboard_check_pressed(ord("Q")) { game_restart() }
+    if paused and keyboard_check_pressed(ord("Q")) { game_init(); _room = ROOM_MENU; highscore_add("snake", score); return }
    
     if (not dead and not jormungar) and _esc_enter_space() { 
         paused = !paused

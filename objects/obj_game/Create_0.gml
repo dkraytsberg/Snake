@@ -109,7 +109,6 @@ function state_is_frenzy() {
 
 // todo: delete
 function print_text(text, col = c_white) {
-    // draw_set_colour(col ?? c_white)
     draw_set_colour(c_white)
     draw_set_halign(fa_center);
     draw_text(room_width / 2, 16, text)
@@ -168,7 +167,10 @@ function check_food_eaten() {
             score += 1
             foods_eaten += 1
             snake_food_mode = food[i][2]
-            
+            /*
+            var game_sped = game_get_speed(gamespeed_fps)
+            game_set_speed(game_sped + 5, gamespeed_fps)
+            */
             process_food_effects()
             array_delete(food, i, 1)
            
@@ -271,14 +273,16 @@ function _movement_keyboard_checks() {
     }
 }
 
-function _check_collision_move_snake() {
+function _check_collision_move_snake() { 
     if speed_counter <= 0 { 
-        check_collision()
-        if not dead and not jormungar { move_snake() }
-        if mode_turbo { 
-            speed_counter = TURBO_SPEED_COUNTER;
-        } else {
-            speed_counter = BASE_SPEED_COUNTER;
+        if not dead and not jormungar {
+            move_snake()
+            check_collision()
+            if mode_turbo { 
+                speed_counter = TURBO_SPEED_COUNTER;
+            } else {
+                speed_counter = BASE_SPEED_COUNTER;
+            }
         }
     } else {
         speed_counter -= 1
