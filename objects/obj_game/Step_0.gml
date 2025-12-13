@@ -2,14 +2,15 @@
 if _room == ROOM_GAME {
     if dead or jormungar {
         if _esc_enter_space() or keyboard_check_pressed(ord("R")) { 
+            highscore_add("snake", score)
             game_init();
             return;
         } 
-        if keyboard_check_pressed(ord("Q")) { game_restart() }
+        if keyboard_check_pressed(ord("Q")) { game_init(); _room = ROOM_MENU; highscore_add("snake", score); return }
         
     }
     
-    if paused and keyboard_check_pressed(ord("Q")) { game_restart() }
+    if paused and keyboard_check_pressed(ord("Q")) { game_init(); _room = ROOM_MENU; highscore_add("snake", score); return }
    
     if (not dead and not jormungar) and _esc_enter_space() { 
         paused = !paused
@@ -46,11 +47,21 @@ if _room == ROOM_MENU {
     }
     else if keyboard_check_pressed(ord("M")) {
         _room = ROOM_MODE_SELECT
-        return;
+        return
     }
     else if keyboard_check_pressed(ord("I")) {
         _room = ROOM_INFO
-        return;
+        return
+    }
+    else if keyboard_check_pressed(ord("Q")) {
+        game_end()
+    }
+    else if keyboard_check_pressed(ord("C")) {
+        highscore_clear()
+    }
+    else if keyboard_check_pressed(ord("H")) {
+        _room = ROOM_HIGHSCORE
+        return
     }
 }
 
@@ -64,6 +75,12 @@ if _room == ROOM_MODE_SELECT {
 }
 
 if _room == ROOM_INFO {
+    if keyboard_check_pressed(vk_escape) {
+        _room = ROOM_MENU
+    }
+}
+
+if _room == ROOM_HIGHSCORE {
     if keyboard_check_pressed(vk_escape) {
         _room = ROOM_MENU
     }

@@ -2,6 +2,7 @@
 #macro ROOM_GAME "game"
 #macro ROOM_MODE_SELECT "settings"
 #macro ROOM_INFO "info"
+#macro ROOM_HIGHSCORE "highscore"
 #macro ROOM_SCRATCH "scratch"
 _room = ROOM_MENU
 
@@ -50,6 +51,7 @@ function game_init() {
     dir = [1, 0]
     score_before_jormungar = 0
     dead = false
+    show_new_highscore = false
     jormungar = false
     paused = false
     speed_counter = 0
@@ -71,8 +73,8 @@ function food_to_color(f) {
         case FOOD_SUPER: return c_fuchsia
         case FOOD_LONG: return c_aqua
         case FOOD_GHOST: return c_silver
-        case FOOD_FRENZY: return c_maroon
-        case FOOD_FEAST: return c_maroon
+        case FOOD_FRENZY: return c_red
+        case FOOD_FEAST: return c_red
         case FOOD_FEAST_SUCCESS: return c_yellow
         case FOOD_FEAST_FAILED: return c_yellow
         case FOOD_DEAD: return c_white 
@@ -107,7 +109,6 @@ function state_is_frenzy() {
 
 // todo: delete
 function print_text(text, col = c_white) {
-    // draw_set_colour(col ?? c_white)
     draw_set_colour(c_white)
     draw_set_halign(fa_center);
     draw_text(room_width / 2, 16, text)
@@ -166,7 +167,10 @@ function check_food_eaten() {
             score += 1
             foods_eaten += 1
             snake_food_mode = food[i][2]
-            
+            /*
+            var game_sped = game_get_speed(gamespeed_fps)
+            game_set_speed(game_sped + 5, gamespeed_fps)
+            */
             process_food_effects()
             array_delete(food, i, 1)
            
@@ -233,6 +237,7 @@ function check_collision() {
         }
         jormungar = true
         score *= 100;
+        highscore_add("jormungandr", score)
         return
     }
     for(var i = 0; i < array_length(snakes) - 1; i++) {
@@ -241,6 +246,10 @@ function check_collision() {
                 reset_snake_mode();
                 array_foreach(snakes, function(s, i) { s[2] = FOOD_DEAD });
                 food = []; color = c_white; dead = true;
+                if score > highscore_value(1) {
+                    show_new_highscore = true
+                }
+                highscore_add("snake", score)
                 return;
             } else {
                 score += 5;
@@ -264,14 +273,16 @@ function _movement_keyboard_checks() {
     }
 }
 
-function _check_collision_move_snake() {
+function _check_collision_move_snake() { 
     if speed_counter <= 0 { 
-        check_collision()
-        if not dead and not jormungar { move_snake() }
-        if mode_turbo { 
-            speed_counter = TURBO_SPEED_COUNTER;
-        } else {
-            speed_counter = BASE_SPEED_COUNTER;
+        if not dead and not jormungar {
+            move_snake()
+            check_collision()
+            if mode_turbo { 
+                speed_counter = TURBO_SPEED_COUNTER;
+            } else {
+                speed_counter = BASE_SPEED_COUNTER;
+            }
         }
     } else {
         speed_counter -= 1
