@@ -46,7 +46,7 @@ function game_init() {
     snakes = []
     array_copy(snakes, 0, _STARTING_SNAKES, 0, 6)
     food = []
-    score = 0
+    _score = 0
     foods_eaten = 0
     dir = [1, 0]
     score_before_jormungar = 0
@@ -107,14 +107,6 @@ function state_is_frenzy() {
     return snake_food_mode == FOOD_FRENZY or snake_food_mode == FOOD_FEAST;
 }
 
-// todo: delete
-function print_text(text, col = c_white) {
-    draw_set_colour(c_white)
-    draw_set_halign(fa_center);
-    draw_text(room_width / 2, 16, text)
-    draw_set_halign(fa_left);
-}
-
 
 function make_food(type) {
     var food_type = FOOD_NORMAL
@@ -125,7 +117,7 @@ function make_food(type) {
         if mode_rush {
             food_type = _food_options[irandom(array_length(_food_options) - 1)]
         }
-        else if not mode_pure and random(10) >= 7 and score > 10 {
+        else if not mode_pure and random(10) >= 7 and _score > 10 {
             food_type = _food_options[irandom(array_length(_food_options) - 1)]
         }
     }
@@ -139,10 +131,10 @@ function make_food(type) {
 
 function process_food_effects() {
     if mode_turbo {
-        score += 4
+        _score += 4
     }
     if snake_food_mode == FOOD_SUPER {
-        score *= 2
+        _score *= 2
     } else if snake_food_mode == FOOD_GHOST {
         powerup_counter = BASE_POWERUP_COUNTER
     } else if snake_food_mode == FOOD_LONG {
@@ -164,7 +156,7 @@ function check_food_eaten() {
         var food_collision = head[0] == food[i][0] and head[1] == food[i][1];
         if food_collision {
             color = c_yellow;
-            score += 1
+            _score += 1
             foods_eaten += 1
             snake_food_mode = food[i][2]
             /*
@@ -179,7 +171,7 @@ function check_food_eaten() {
                 if frenzy_counter > 0 {
                    // feast successful
                    snake_food_mode = FOOD_FEAST_SUCCESS //FOOD_NORMAL
-                   score *= 3
+                   _score *= 3
                    frenzy_counter = 0 
                    color = food_to_color(FOOD_FEAST_SUCCESS)
                } 
@@ -212,7 +204,7 @@ function move_snake() {
     array_push(snakes, new_head)
     
     if snake_food_mode == FOOD_LONG {
-        score += 1;
+        _score += 1;
     }
     
     var ate_food = check_food_eaten()
@@ -232,12 +224,12 @@ function check_collision() {
     
     if head[0] == tail[0] and head[1] == tail[1] {
         if not jormungar { 
-            score_before_jormungar = score * 100
+            score_before_jormungar = _score * 100
             array_foreach(snakes, function(s, i) { s[2] = FOOD_DEAD });
         }
         jormungar = true
-        score *= 100;
-        highscore_add("jormungandr", score)
+        _score *= 100;
+        highscore_add("jormungandr", _score)
         return
     }
     for(var i = 0; i < array_length(snakes) - 1; i++) {
@@ -246,13 +238,13 @@ function check_collision() {
                 reset_snake_mode();
                 array_foreach(snakes, function(s, i) { s[2] = FOOD_DEAD });
                 food = []; color = c_white; dead = true;
-                if score > highscore_value(1) {
+                if _score > highscore_value(1) {
                     show_new_highscore = true
                 }
-                highscore_add("snake", score)
+                highscore_add("snake", _score)
                 return;
             } else {
-                score += 5;
+                _score += 5;
             }
         }
     }

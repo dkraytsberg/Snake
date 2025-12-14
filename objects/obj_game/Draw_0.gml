@@ -45,7 +45,7 @@ function _draw_fps(status) {
     __draw_top_text(status, 2, 2)
 }
 
-function _draw_mode(mode) {
+function _draw_mode_info(mode) {
     __draw_top_text(mode, 2, 0)
 }
 
@@ -53,26 +53,24 @@ function _draw_highscore(scr) {
     __draw_top_text(scr, 2, 2)
 }
 
-
-
 draw_set_font(snake_font)
-draw_set_halign(fa_left);
-draw_set_valign(fa_top); 
+draw_set_halign(fa_left)
+draw_set_valign(fa_top)
 draw_set_colour(c_white)
 
 
 if _room == ROOM_GAME {
-    draw_set_colour(color)
-    _draw_border()
+    draw_set_colour(color);
+    _draw_border();
     
-    _draw_fps(game_get_speed(gamespeed_fps))
+    _draw_fps("fps: " + string(game_get_speed(gamespeed_fps)))
    
     if not paused {
         // Draw Snake
         for(var i = 0; i < array_length(snakes); i++) {
            var s = snakes[i]
-           var snake_x = s[0] * snake_size + border;
-           var snake_y = s[1] * snake_size + border_top;
+           var snake_x = s[0] * snake_size + border
+           var snake_y = s[1] * snake_size + border_top
            draw_set_colour(food_to_snake_color(s[2]))
            var is_outline = s[2] == FOOD_GHOST
            draw_rectangle(snake_x, snake_y, snake_x + snake_size, snake_y + snake_size, is_outline)
@@ -89,9 +87,9 @@ if _room == ROOM_GAME {
     }
    
     draw_set_colour(color)
-    _draw_score("SCORE: " + string(score))
+    _draw_score("SCORE: " + string(_score))
     
-    if score > highscore_value(1) {
+    if _score > highscore_value(1) {
         _draw_highscore("NEW HIGH SCORE!")
     }
    
@@ -102,10 +100,10 @@ if _room == ROOM_GAME {
     } else if paused {
         draw_set_color(c_white)
         _draw_status("--PAUSED--")
-        draw_set_halign(fa_center);
+        draw_set_halign(fa_center)
         _draw_center_text("PRESS [enter] TO CONTINUE", 11)
         _draw_center_text("PRESS [Q] TO QUIT", 13)
-        draw_set_halign(fa_left);
+        draw_set_halign(fa_left)
         draw_set_color(color)
     } else if frenzy_counter > 0 {
         var frenzy_digit = ceil(frenzy_counter / game_get_speed(gamespeed_fps))
@@ -121,7 +119,7 @@ if _room == ROOM_GAME {
     if mode_multi { mode_str += " MULTI!" }
     if mode_turbo { mode_str += " TURBO!" } 
     if mode_rush { mode_str += " RUSH!" }
-    if mode_str != "" { _draw_mode(mode_str) }
+    if mode_str != "" { _draw_mode_info(mode_str) }
 
 }
 
@@ -141,9 +139,9 @@ if _room == ROOM_MENU {
 }
 
 if _room == ROOM_MODE_SELECT {
-    draw_set_colour(c_white);
+    draw_set_colour(c_white)
     _draw_border();
-    draw_set_halign(fa_center);
+    draw_set_halign(fa_center)
     
     var pure_mode_text = "OFF"; if mode_pure then pure_mode_text = "ON ";
     var turbo_mode_text = "OFF"; if mode_turbo then turbo_mode_text = "ON ";
@@ -151,10 +149,10 @@ if _room == ROOM_MODE_SELECT {
     var multi_mode_text = "OFF"; if mode_multi then multi_mode_text = "ON ";
     
     _draw_center_text("MODE SELECT", 1)
-    _draw_center_text("[P]  PURE MODE   " + pure_mode_text, 5);
-    _draw_center_text("[T]  TURBO!      " + turbo_mode_text, 6);
-    _draw_center_text("[R]  POWER RUSH  " + rush_mode_text, 7);
-    _draw_center_text("[M]  MULTI-FOOD  " + multi_mode_text, 8);
+    _draw_center_text("[P]  PURE MODE   " + pure_mode_text, 5)
+    _draw_center_text("[T]  TURBO!      " + turbo_mode_text, 6)
+    _draw_center_text("[R]  POWER RUSH  " + rush_mode_text, 7)
+    _draw_center_text("[M]  MULTI-FOOD  " + multi_mode_text, 8)
     _draw_center_text("PRESS [enter] TO START", 11)
     _draw_center_text("PRESS [ESC] TO GO BACK", 18)
 }
@@ -166,7 +164,7 @@ if _room == ROOM_INFO {
     
     var foods = [ FOOD_NORMAL, FOOD_SUPER, FOOD_LONG, FOOD_GHOST, FOOD_FRENZY, FOOD_FEAST ]
     
-    draw_set_halign(fa_center);
+    draw_set_halign(fa_center)
     for (var i = 0; i < array_length(foods); i++) {
         draw_set_colour(food_to_color(foods[i]))
         var fx = border + (room_width / 10)
@@ -175,7 +173,7 @@ if _room == ROOM_INFO {
         var fy2 = fy + (food_size * 2)
         var is_outline = foods[i] == FOOD_GHOST or foods[i] == FOOD_FEAST
         draw_rectangle(fx, fy, fx2, fy2, is_outline)
-        draw_set_halign(fa_left);
+        draw_set_halign(fa_left)
         draw_text(fx2 + food_size, fy, food_to_info(foods[i]))
     }
 }
@@ -185,7 +183,7 @@ if _room == ROOM_SCRATCH {
     _draw_border()
     _draw_score("SCORE: 1231231")
     _draw_status("--PAUSED--")
-    _draw_mode("TURBO!")
+    _draw_mode_info("TURBO!")
 }
 
 if _room == ROOM_HIGHSCORE {

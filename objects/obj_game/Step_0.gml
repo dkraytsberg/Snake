@@ -1,16 +1,26 @@
 
 if _room == ROOM_GAME {
     if dead or jormungar {
-        if _esc_enter_space() or keyboard_check_pressed(ord("R")) { 
-            highscore_add("snake", score)
-            game_init();
-            return;
+        if _esc_enter_space() or keyboard_check_pressed(ord("R")) {
+            game_init()
+            highscore_add("snake", _score)
+            return
         } 
-        if keyboard_check_pressed(ord("Q")) { game_init(); _room = ROOM_MENU; highscore_add("snake", score); return }
+        if keyboard_check_pressed(ord("Q")) { 
+            game_init()
+            highscore_add("snake", _score)
+            _room = ROOM_MENU
+            return
+        }
         
     }
     
-    if paused and keyboard_check_pressed(ord("Q")) { game_init(); _room = ROOM_MENU; highscore_add("snake", score); return }
+    if paused and keyboard_check_pressed(ord("Q")) { 
+        game_init()
+        highscore_add("snake", _score)
+        _room = ROOM_MENU
+        return
+    }
    
     if (not dead and not jormungar) and _esc_enter_space() { 
         paused = !paused
@@ -24,7 +34,7 @@ if _room == ROOM_GAME {
            if powerup_counter <= 1 {
                reset_snake_mode()
            } else {
-               powerup_counter -= 1;
+               powerup_counter -= 1
            }     
        }
        
@@ -68,10 +78,10 @@ if _room == ROOM_MENU {
 if _room == ROOM_MODE_SELECT {
     if keyboard_check_pressed(vk_escape) { _room = ROOM_MENU; return; }
     if keyboard_check_pressed(vk_enter) or keyboard_check_pressed(vk_space) { _room = ROOM_GAME; return; }
-    if keyboard_check_pressed(ord("T")) { mode_turbo = !mode_turbo; }
+    if keyboard_check_pressed(ord("T")) { mode_turbo = !mode_turbo }
     if keyboard_check_pressed(ord("P")) { mode_pure = !mode_pure; mode_rush = false; mode_multi = false; }
     if keyboard_check_pressed(ord("R")) { mode_rush = !mode_rush; mode_pure = false; }
-    if keyboard_check_pressed(ord("M")) { mode_multi = !mode_multi; }
+    if keyboard_check_pressed(ord("M")) { mode_multi = !mode_multi }
 }
 
 if _room == ROOM_INFO {
