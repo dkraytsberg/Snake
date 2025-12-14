@@ -6,7 +6,7 @@ if _room == ROOM_GAME {
             highscore_add("snake", _score)
             return
         } 
-        if keyboard_check_pressed(ord("Q")) { 
+        if keyboard_check_pressed(ord("Q")) {
             game_init()
             highscore_add("snake", _score)
             _room = ROOM_MENU
@@ -28,25 +28,9 @@ if _room == ROOM_GAME {
    
    if not paused {
        _movement_keyboard_checks()
-       _check_collision_move_snake()
-       
-       if state_is_powerup() {
-           if powerup_counter <= 1 {
-               reset_snake_mode()
-           } else {
-               powerup_counter -= 1
-           }     
-       }
-       
-       if state_is_frenzy() {
-           if frenzy_counter <= 1 {
-               food = [] // TODO: this kills the other food in multi_mode
-               make_food()
-               reset_snake_mode()
-          } else {
-               frenzy_counter -= 1
-          }
-       }
+        if can_move {
+            _check_collision_move_snake()
+        }
    }
 }
 
@@ -78,7 +62,9 @@ if _room == ROOM_MENU {
 if _room == ROOM_MODE_SELECT {
     if keyboard_check_pressed(vk_escape) { _room = ROOM_MENU; return; }
     if keyboard_check_pressed(vk_enter) or keyboard_check_pressed(vk_space) { _room = ROOM_GAME; return; }
-    if keyboard_check_pressed(ord("T")) { mode_turbo = !mode_turbo }
+    if keyboard_check_pressed(ord("T")) { 
+        mode_turbo = !mode_turbo;
+    }
     if keyboard_check_pressed(ord("P")) { mode_pure = !mode_pure; mode_rush = false; mode_multi = false; }
     if keyboard_check_pressed(ord("R")) { mode_rush = !mode_rush; mode_pure = false; }
     if keyboard_check_pressed(ord("M")) { mode_multi = !mode_multi }

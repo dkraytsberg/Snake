@@ -14,15 +14,16 @@ _room = ROOM_MENU
 #macro hor_squares ((room_width - border - border) / snake_size)
 #macro ver_squares ((room_height - border - border_top) / snake_size)
 
+#macro CAN_MOVE_ALARM_INDEX 0
+#macro POWERUP_ALARM_INDEX 1
+#macro POWERUP_SECONDS 2
+#macro FRENZY_ALARM_INDEX 2
+#macro FRENZY_SECONDS 5 
 
-BASE_SPEED_COUNTER = 4
-TURBO_SPEED_COUNTER = 2
+
 BASE_POWERUP_COUNTER = 3 * game_get_speed(gamespeed_fps)
 BASE_FRENZY_COUNTER = 6 * game_get_speed(gamespeed_fps)
 
-speed_counter = 0
-powerup_counter = 0
-frenzy_counter = 0
 
 mode_turbo = false
 mode_pure = false
@@ -43,6 +44,8 @@ _food_options = [FOOD_SUPER, FOOD_LONG, FOOD_GHOST, FOOD_FRENZY]
 _STARTING_SNAKES = [[0,0, FOOD_NORMAL], [0, 1, FOOD_NORMAL], [1,1, FOOD_NORMAL], [2,1, FOOD_NORMAL], [3,1, FOOD_NORMAL], [4,1,FOOD_NORMAL]]
 
 function game_init() {
+    show_debug_message("game init")
+    can_move = true
     snakes = []
     array_copy(snakes, 0, _STARTING_SNAKES, 0, 6)
     food = []
@@ -54,7 +57,6 @@ function game_init() {
     show_new_highscore = false
     jormungar = false
     paused = false
-    speed_counter = 0
     _input_buffer = [1, 0]
     reset_snake_mode()
     make_food(FOOD_NORMAL)
@@ -63,8 +65,6 @@ function game_init() {
 function reset_snake_mode() {
     snake_food_mode = FOOD_NORMAL;
     color = c_yellow;
-    frenzy_counter = 0;
-    powerup_counter = 0;
 }
 
 function food_to_color(f) {
@@ -136,16 +136,25 @@ function process_food_effects() {
     if snake_food_mode == FOOD_SUPER {
         _score *= 2
     } else if snake_food_mode == FOOD_GHOST {
-        powerup_counter = BASE_POWERUP_COUNTER
+        alarm[POWERUP_ALARM_INDEX] = POWERUP_SECONDS * game_get_speed(gamespeed_fps)
     } else if snake_food_mode == FOOD_LONG {
-        powerup_counter = BASE_POWERUP_COUNTER
+        alarm[POWERUP_ALARM_INDEX] = POWERUP_SECONDS * game_get_speed(gamespeed_fps)
     } else if snake_food_mode == FOOD_FRENZY {
         repeat(irandom_range(4, 6)) {
             make_food(FOOD_FEAST)
         }
-        frenzy_counter = BASE_FRENZY_COUNTER
+        alarm[FRENZY_ALARM_INDEX] = FRENZY_SECONDS * game_get_speed(gamespeed_fps)
     } else if snake_food_mode == FOOD_FEAST {
-        frenzy_counter += game_get_speed(gamespeed_fps)
+        
+        alarm[FRENZY_ALARM_INDEX] = alarm_get(FRENZY_ALARM_INDEX) + game_get_speed(gamespeed_fps)
+        
+        if (array_length(array_filter(food, function(v, i) { return v[2] == FOOD_FEAST })) == 0) {
+            snake_food_mode = FOOD_FEAST_SUCCESS //FOOD_NORMAL
+            alarm[FRENZY_ALARM_INDEX] = -1
+            _score *= 3
+            color = food_to_color(FOOD_FEAST_SUCCESS)
+        }
+        
     }
     
     color = food_to_snake_color(snake_food_mode)
@@ -159,35 +168,24 @@ function check_food_eaten() {
             _score += 1
             foods_eaten += 1
             snake_food_mode = food[i][2]
-            /*
-            var game_sped = game_get_speed(gamespeed_fps)
-            game_set_speed(game_sped + 5, gamespeed_fps)
-            */
-            process_food_effects()
             array_delete(food, i, 1)
-           
-            // TODO: check that there are no more feast foods in the array, to account for multi-mode
-            if array_length(food) == 0 {
-                if frenzy_counter > 0 {
-                   // feast successful
-                   snake_food_mode = FOOD_FEAST_SUCCESS //FOOD_NORMAL
-                   _score *= 3
-                   frenzy_counter = 0 
-                   color = food_to_color(FOOD_FEAST_SUCCESS)
-               } 
-               make_food()
-                
-                if mode_multi {
-                    repeat(irandom_range(1, 3)) {
-                        make_food()
-                    }
-                }
-           }
-           return true;
+            process_food_effects()
+            return true;
        }
     }
-    
     return false;
+}
+
+function check_for_empty_food() {
+    if dead or jormungar { return }
+    if array_length(food) == 0 {
+       make_food()
+       if mode_multi {
+           repeat(irandom_range(1, 3)) {
+               make_food()
+           }
+       }
+   }
 }
 
 function move_snake() {
@@ -266,18 +264,17 @@ function _movement_keyboard_checks() {
 }
 
 function _check_collision_move_snake() { 
-    if speed_counter <= 0 { 
-        if not dead and not jormungar {
-            move_snake()
-            check_collision()
-            if mode_turbo { 
-                speed_counter = TURBO_SPEED_COUNTER;
-            } else {
-                speed_counter = BASE_SPEED_COUNTER;
-            }
+    if not dead and not jormungar {
+        move_snake()
+        check_collision()
+        check_for_empty_food()
+        
+        can_move = false
+        if mode_turbo {
+            alarm[CAN_MOVE_ALARM_INDEX] = 3
+        } else {
+            alarm[CAN_MOVE_ALARM_INDEX] = 4
         }
-    } else {
-        speed_counter -= 1
     }
 }
 

@@ -2,7 +2,7 @@ function _draw_border() {
     draw_rectangle(border, border_top, room_width - border, room_height - border, true)
 }
 
-function __draw_top_text(text, hindex, vindex, top_pad = 0, left_pad = 0) {
+function __draw_text(text, hindex, vindex, top_pad = 0, left_pad = 0) {
     var halign; var tx;
     if hindex <= 0 { 
         halign = fa_left 
@@ -22,35 +22,35 @@ function __draw_top_text(text, hindex, vindex, top_pad = 0, left_pad = 0) {
 }
 
 function __draw_body_text(text, hindex, vindex) {
-    __draw_top_text(text, hindex, vindex, border_top)
+    __draw_text(text, hindex, vindex, border_top)
 }
 
 function _draw_center_text(text, vindex) {
-    __draw_top_text(text, 1, vindex, border_top)
+    __draw_text(text, 1, vindex, border_top)
 }
 
 function _draw_highscore_text(text, vindex) {
-    __draw_top_text(text, 0, vindex, border_top, border * 5)
+    __draw_text(text, 0, vindex, border_top, border * 5)
 }
 
 function _draw_score(scr) {
-    __draw_top_text(scr, 0, 0)
+    __draw_text(scr, 0, 0)
 }
 
 function _draw_status(status) {
-    __draw_top_text(status, 1, 1)
+    __draw_text(status, 1, 1)
 }
 
-function _draw_fps(status) {
-    __draw_top_text(status, 2, 2)
+function _draw_bottom_text(text, hindex = 1) {
+    __draw_text(text, hindex, 0, room_height - border + 1)
 }
 
 function _draw_mode_info(mode) {
-    __draw_top_text(mode, 2, 0)
+    __draw_text(mode, 2, 0)
 }
 
 function _draw_highscore(scr) {
-    __draw_top_text(scr, 2, 2)
+    __draw_text(scr, 2, 2)
 }
 
 draw_set_font(snake_font)
@@ -63,7 +63,8 @@ if _room == ROOM_GAME {
     draw_set_colour(color);
     _draw_border();
     
-    _draw_fps("fps: " + string(game_get_speed(gamespeed_fps)))
+    _draw_bottom_text("mode " + snake_food_mode, 0)
+    _draw_bottom_text("fps: " + string(game_get_speed(gamespeed_fps)), 2)
    
     if not paused {
         // Draw Snake
@@ -105,8 +106,8 @@ if _room == ROOM_GAME {
         _draw_center_text("PRESS [Q] TO QUIT", 13)
         draw_set_halign(fa_left)
         draw_set_color(color)
-    } else if frenzy_counter > 0 {
-        var frenzy_digit = ceil(frenzy_counter / game_get_speed(gamespeed_fps))
+    } else if state_is_frenzy() {
+        var frenzy_digit = alarm_get(FRENZY_ALARM_INDEX)
         _draw_status("FRENZY! " + string(frenzy_digit))
     } else if snake_food_mode == FOOD_FEAST_SUCCESS {
         _draw_status("SUCCESS!")
